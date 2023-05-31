@@ -35,21 +35,23 @@ final class ComponentNode extends EmbedNode
         $compiler->addDebugInfo($this);
 
         $compiler
-            ->raw('$props = $this->extensions[')
+            ->write('$embeddedContext = $this->extensions[')
             ->string(ComponentExtension::class)
             ->raw(']->embeddedContext(')
             ->string($this->getAttribute('component'))
-            ->raw(', ')
-            ->raw('twig_to_array(')
+            ->raw(', twig_to_array(')
             ->subcompile($this->getNode('variables'))
             ->raw('), ')
             ->raw($this->getAttribute('only') ? '[]' : '$context')
+            ->raw(', ')
+            ->string($this->getAttribute('name'))
+            ->raw(', ')
+            ->raw($this->getAttribute('index'))
             ->raw(");\n")
         ;
 
         $this->addGetTemplate($compiler);
-
-        $compiler->raw('->display($props);');
+        $compiler->write('->display($embeddedContext);');
         $compiler->raw("\n");
     }
 }

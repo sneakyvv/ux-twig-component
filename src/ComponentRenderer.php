@@ -11,6 +11,7 @@
 
 namespace Symfony\UX\TwigComponent;
 
+use Composer\InstalledVersions;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
@@ -58,7 +59,15 @@ final class ComponentRenderer implements ComponentRendererInterface
         $event = $this->preRender($mounted);
 
         try {
-            return $this->twig->render($event->getTemplate(), $event->getVariables());
+            if (InstalledVersions::getVersion('twig/twig') < 3) {
+                return $this->twig->loadTemplate($event->getTemplate(), $event->getTemplateIndex())->render($event->getVariables());
+            }
+
+            return $this->twig->loadTemplate(
+                $this->twig->getTemplateClass($event->getTemplate()),
+                $event->getTemplate(),
+                $event->getTemplateIndex(),
+            )->render($event->getVariables());
         } finally {
             $this->componentStack->pop();
 
@@ -67,11 +76,15 @@ final class ComponentRenderer implements ComponentRendererInterface
         }
     }
 
-    public function embeddedContext(string $name, array $props, array $context): array
+    public function embeddedContext(string $name, array $props, array $context, string $hostTemplateName, int $index): array
     {
         $context[PreRenderEvent::EMBEDDED] = true;
 
-        return $this->preRender($this->factory->create($name, $props), $context)->getVariables();
+        $mounted = $this->factory->create($name, $props);
+        $mounted->addExtraMetadata('hostTemplate', $hostTemplateName);
+        $mounted->addExtraMetadata('embeddedTemplateIndex', $index);
+
+        return $this->preRender($mounted, $context)->getVariables();
     }
 
     private function preRender(MountedComponent $mounted, array $context = []): PreRenderEvent

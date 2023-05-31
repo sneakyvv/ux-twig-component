@@ -61,10 +61,10 @@ final class ComponentExtension extends AbstractExtension implements ServiceSubsc
         }
     }
 
-    public function embeddedContext(string $name, array $props, array $context): array
+    public function embeddedContext(string $name, array $props, array $context, string $hostTemplateName, int $index): array
     {
         try {
-            return $this->container->get(ComponentRenderer::class)->embeddedContext($name, $props, $context);
+            return $this->container->get(ComponentRenderer::class)->embeddedContext($name, $props, $context, $hostTemplateName, $index);
         } catch (\Throwable $e) {
             $this->throwRuntimeError($name, $e);
         }

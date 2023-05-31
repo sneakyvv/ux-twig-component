@@ -31,6 +31,8 @@ final class ComponentTokenParser extends AbstractTokenParser
     /** @var ComponentFactory|callable():ComponentFactory */
     private $factory;
 
+    private array $lineAndFileCounts = [];
+
     /**
      * @param callable():ComponentFactory $factory
      */
@@ -71,6 +73,9 @@ final class ComponentTokenParser extends AbstractTokenParser
         }
 
         $this->parser->embedTemplate($module);
+
+        // use deterministic index for the embedded template, so it can be loaded in a controlled manner
+        $module->setAttribute('index', $this->generateEmbeddedTemplateIndex($stream->getSourceContext()->getName(), $token->getLine()));
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
@@ -123,5 +128,15 @@ final class ComponentTokenParser extends AbstractTokenParser
         $stream->expect(Token::BLOCK_END_TYPE);
 
         return [$variables, $only];
+    }
+
+    private function generateEmbeddedTemplateIndex(string $file, int $line): int
+    {
+        $fileAndLine = sprintf('%s-%d', $file, $line);
+        if (!isset($this->lineAndFileCounts[$fileAndLine])) {
+            $this->lineAndFileCounts[$fileAndLine] = 0;
+        }
+
+        return crc32($fileAndLine).++$this->lineAndFileCounts[$fileAndLine];
     }
 }
