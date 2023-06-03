@@ -1,0 +1,14 @@
+<twig:GenericElement element="div" class="divComponent">
+    {{ parent() }} It is accessible via the {{'{{'}} parent() {{'}}'}} function.
+    Of course you can add some extra content from the DivComponent component.
+
+    Did you know I can access the embedded template's context?
+    Yeah, the Generic Element's property "id" is "{{ id }}".
+    And the result of a function via `this` works too: {{ this.someFunction }}.
+
+    I can also access DivComponent's properties just like those of Generic Element. I know DivComponent's name is {{ divComponentName }}.
+
+    But note that I can not access the scope of the template embedding this component.
+    I can't tell you what "name={{ name ?? '' }}" should be, since this content is only used when you're NOT using embedding components
+    (aka a self closing twig tag, or a {{'{{'}} component {{'}}'}}'.
+</twig:GenericElement>

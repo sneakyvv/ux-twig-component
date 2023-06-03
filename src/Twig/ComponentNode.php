@@ -51,7 +51,7 @@ final class ComponentNode extends EmbedNode
         ;
 
         $this->addGetTemplate($compiler);
-        $compiler->write('->display($embeddedContext);');
+        $compiler->raw('->display($embeddedContext, $blocks);');
         $compiler->raw("\n");
     }
 }
