@@ -39,7 +39,8 @@ final class ComponentNode extends EmbedNode
             ->string(ComponentExtension::class)
             ->raw(']->embeddedContext(')
             ->string($this->getAttribute('component'))
-            ->raw(', twig_to_array(')
+            ->raw(', ')
+            ->raw('twig_to_array(')
             ->subcompile($this->getNode('variables'))
             ->raw('), ')
             ->raw($this->getAttribute('only') ? '[]' : '$context')
@@ -50,8 +51,15 @@ final class ComponentNode extends EmbedNode
             ->raw(");\n")
         ;
 
+        $compiler->write('$embeddedBlocks = $embeddedContext[')
+            ->string('outerBlocks')
+            ->raw(']->convert($blocks, ')
+            ->string($this->getAttribute('index'))
+            ->raw(");\n")
+        ;
+
         $this->addGetTemplate($compiler);
-        $compiler->raw('->display($embeddedContext, $blocks);');
+        $compiler->raw('->display($embeddedContext, $embeddedBlocks);');
         $compiler->raw("\n");
     }
 }

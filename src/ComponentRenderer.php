@@ -84,7 +84,13 @@ final class ComponentRenderer implements ComponentRendererInterface
         $mounted->addExtraMetadata('hostTemplate', $hostTemplateName);
         $mounted->addExtraMetadata('embeddedTemplateIndex', $index);
 
-        return $this->preRender($mounted, $context)->getVariables();
+        $embeddedContext = $this->preRender($mounted, $context)->getVariables();
+
+        if (!isset($embeddedContext["outerBlocks"])) {
+            $embeddedContext["outerBlocks"] = new BlockStack();
+        }
+
+        return $embeddedContext;
     }
 
     private function preRender(MountedComponent $mounted, array $context = []): PreRenderEvent
