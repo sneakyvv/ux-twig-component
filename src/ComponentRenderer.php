@@ -102,13 +102,21 @@ final class ComponentRenderer implements ComponentRendererInterface
         }
 
         $component = $mounted->getComponent();
+
+        // add the "parent" component when rendering a nested embedded component
+        if (isset($context[PreRenderEvent::EMBEDDED]) && true === $context[PreRenderEvent::EMBEDDED] && isset($context['this'])) {
+            $hierarchy = $context['this'] instanceof Hierarchy ? $context['this'] : new Hierarchy($context['this']);
+            if (isset($context['this'])) {
+                $hierarchy = $hierarchy->add($component);
+            }
+        }
         $metadata = $this->factory->metadataFor($mounted->getName());
         $variables = array_merge(
             // first so values can be overridden
             $context,
 
             // add the component as "this"
-            ['this' => $component],
+            ['this' => $hierarchy ?? $component],
 
             // add computed properties proxy
             ['computed' => new ComputedPropertiesProxy($component)],

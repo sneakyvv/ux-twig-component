@@ -54,7 +54,7 @@ final class ComponentNode extends EmbedNode
         $compiler->write('$embeddedBlocks = $embeddedContext[')
             ->string('outerBlocks')
             ->raw(']->convert($blocks, ')
-            ->string($this->getAttribute('index'))
+            ->raw($this->getAttribute('index'))
             ->raw(");\n")
         ;
 

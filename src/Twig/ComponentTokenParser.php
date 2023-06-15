@@ -66,7 +66,7 @@ final class ComponentTokenParser extends AbstractTokenParser
             new Token(Token::BLOCK_END_TYPE, '', $token->getLine()),
 
             // Add an empty block which can act as a fallback for when an outer
-            // block is referenced that is not passed in from the embedded component
+            // block is referenced that is not passed in from the embedded component.
             // See BlockStack::__call()
             new Token(Token::BLOCK_START_TYPE, '', $token->getLine()),
             new Token(Token::NAME_TYPE, 'block', $token->getLine()),

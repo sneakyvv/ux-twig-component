@@ -31,24 +31,24 @@ final class BlockStack
                 continue;
             }
 
-            // Determine the location of the block where it is defined in the host Template
+            // Determine the location of the block where it is defined in the host Template.
             // Each component has its own embedded template. That template's index uniquely
             // identifies the block definition.
             $hostEmbeddedTemplateIndex = $this->findHostEmbeddedTemplateIndex();
 
             if (0 === $hostEmbeddedTemplateIndex) {
-                // If there is no embedded template index, that means we're in a normal level template.
+                // If there is no embedded template index, that means we're in a normal template.
                 // It wouldn't make sense to make these available as outer blocks,
-                // since the block already printed in place.
+                // since the block is already printed in place.
                 continue;
             }
 
-            // Change name of outer blocks to something unique so blocks of nested components aren't overridden,
+            // Change the name of outer blocks to something unique so blocks of nested components aren't overridden,
             // which otherwise might cause a recursion loop when nesting components.
             $newName = self::OUTER_BLOCK_PREFIX.$blockName.'_'.mt_rand();
             $newBlocks[$newName] = $block;
 
-            // That index combined with the index of the embedded template where the block can be used
+            // The host index combined with the index of the embedded template where the block can be used (target)
             // allows us to remember the link between the original name and the new randomized name.
             // That way we can map a call like `block(outerBlocks.block_name)` to the randomized name.
             $this->stack[$blockName][$targetEmbeddedTemplateIndex][$hostEmbeddedTemplateIndex] = $newName;
@@ -104,20 +104,20 @@ final class BlockStack
 
         $blockCallerStack = [];
         $renderer = null;
-        
+
         foreach ($backtrace as $trace) {
             if (isset($trace['object']) && $trace['object'] instanceof Template) {
                 $classname = $trace['object']::class;
                 $templateIndex = $this->getTemplateIndexFromTemplateClassname($classname);
                 if (null === $renderer) {
                     if ($templateIndex) {
-                        // This class is an embedded template
+                        // This class is an embedded template.
                         // Next class is either the renderer or a previous template that's passing blocks through.
                         $blockCallerStack[$classname] = $classname;
                         continue;
                     }
-                    // If it's not an embedded template anymore, we've reached the renderer
-                    // From now on we'll travel back up the hierachy
+                    // If it's not an embedded template anymore, we've reached the renderer.
+                    // From now on we'll travel back up the hierarchy.
                     $renderer = $classname;
                     continue;
                 }
@@ -130,15 +130,15 @@ final class BlockStack
                 }
 
                 // This is the first template that's not part of the callstack,
-                // so it's the template that has the outer block definition
+                // so it's the template that has the outer block definition.
                 return $templateIndex;
             }
         }
 
-        // If the component is not an embedded one, just return 0, so the fallback content (aka nothing) is used
+        // If the component is not an embedded one, just return 0, so the fallback content (aka nothing) is used.
         return 0;
     }
-    
+
     private function getTemplateIndexFromTemplateClassname(string $classname): int
     {
         return (int) substr($classname, strrpos($classname, '___') + 3);
